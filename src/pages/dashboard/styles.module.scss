@@ -30,7 +30,7 @@
 .containerDown {
   margin-top: 2rem;
   height: 15rem;
-  gap: 3%;
+  gap: 12px;
 }
 
 .box {
@@ -67,7 +67,7 @@
 }
 
 .containerChart {
-  width: 42.5rem;
+   flex: 2;
   gap: 1rem;
   border-radius: 1.25rem;
   background: #fff;
@@ -91,7 +91,7 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 22.5rem;
+  flex: 1;
   gap: 1rem;
   border-radius: 1.25rem;
   background: #fff;

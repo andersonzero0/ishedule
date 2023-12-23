@@ -179,7 +179,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className={styles.containerDown}>
-          <ResponsiveContainer className={styles.containerChart} width={700}>
+          <ResponsiveContainer className={styles.containerChart}>
             <AreaChart
               width={700}
               height={230}

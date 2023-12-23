@@ -191,6 +191,7 @@ export function ModalScheduleProfessionals({
               const dayName = day.name;
               return (
                 <button
+                  key={day.name}
                   className={
                     day.selected
                       ? styles.containerCheckbox

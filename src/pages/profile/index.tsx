@@ -38,6 +38,7 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [imageAvatar, setImageAvatar] = useState(null);
   const [companyName, setCompanyName] = useState<string>();
+  const [likes, setLikes] = useState<number>(0);
   const [companyAddress, setCompanyAddress] = useState<string>();
 
   const [categories, setCategories] = useState([]);
@@ -65,6 +66,8 @@ export default function Profile() {
     setCompanyAddress(user.address)
     setAvatarUrl(user.avatar_url)
     setBannerUrl(user.banner_url)
+    
+    console.log(user._count.likes)
 
     if(schedule) {
       const current_schedule = schedule.map((day) => {    
@@ -374,7 +377,7 @@ export default function Profile() {
             </div>
             <label className={styles.likes}>
               <AiFillHeart color="#fff" size={25} />
-              <span>300</span>
+              <span>{likes}</span>
             </label>
           </div>
           <select
@@ -419,7 +422,7 @@ export default function Profile() {
               <div className={styles.weekDaysCheck}>
                 {servicesDays.map((day) => {
                   const dayName = day.name
-                  return <button className={day.selected ? styles.containerCheckbox : styles.containerCheckboxDisable}
+                  return <button key={day.name} className={day.selected ? styles.containerCheckbox : styles.containerCheckboxDisable}
                     onClick={(e) => {
                       const changeDay = servicesDays.map((day) => {
                         e.preventDefault()

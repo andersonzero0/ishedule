@@ -52,7 +52,10 @@ type UserProps = {
     avatar_url?: string,
     banner_url?: string,
     schedule?: ScheduleProps[],
-    description?: string
+    description?: string,
+    _count?: {
+        likes?: number,
+    }
 }
 
 type SignUpProps = {
@@ -94,7 +97,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         banner_url: "",
         description: "",
         professionals: [],
-        service: []
+        service: [],
+        _count: {
+            likes: 0
+        }
     })
     const [schedule, setSchedule] = useState<ScheduleProps[]>()
     const isAuthenticated = !!user
