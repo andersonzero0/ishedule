@@ -58,8 +58,6 @@ export default function Profile() {
     { name: "sab", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false }
   ])
 
-  console.log(weekDays);
-  
 
   useEffect(() => {
     setCompanyName(user.company_name)
@@ -67,14 +65,11 @@ export default function Profile() {
     setAvatarUrl(user.avatar_url)
     setBannerUrl(user.banner_url)
     
-    console.log(user._count.likes)
-
     if(schedule) {
       const current_schedule = schedule.map((day) => {    
         return {...day, opening_time:dayjs(day.opening_time), closing_time: dayjs(day.closing_time)}
       })
       setWeekDays(current_schedule)
-      console.log(current_schedule);
       
     }
 

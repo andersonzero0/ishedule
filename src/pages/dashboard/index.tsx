@@ -222,10 +222,10 @@ export default function Dashboard() {
             </div>
             <div className={styles.boxList}>
               {user?.professionals.length != 0 ? (
-                user?.professionals.map((e, key) => {
+                user?.professionals.map((e: any, key: number) => {
                   return (
                     <>
-                      <p key={key}>- {e.name}</p>
+                      <p key={e.id}>- {e.name}</p>
                     </>
                   );
                 })

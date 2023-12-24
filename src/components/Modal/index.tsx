@@ -124,7 +124,7 @@ export function BasicModal({ open, onClose, edit = false, func }: propsModal) {
                 }
             }
 
-            const response = await api.patch(`/professionals/${id}`, {
+            const response = await api.put(`/professionals/${id}`, {
                 name: funcName,
                 role: funcRole,
                 avatar_url: avatar_url

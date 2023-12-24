@@ -22,9 +22,11 @@ type AuthContextData = {
 }
 
 type Professionals = {
+    id: string,
     name: string,
     role: string,
-    avatar_url: string
+    avatar_url: string,
+    schedule: []
 }
 
 type ServiceProps = {

@@ -7,7 +7,7 @@ import { BasicModal } from "../Modal";
 import { DraggableDialog } from "../Dialog";
 import { ModalScheduleProfessionals } from "../ModalScheduleProfessionals";
 
-export function WorkerCard({ avatar, name, role, func}) {
+export function WorkerCard({ avatar, name, role, func, schedule}) {
   const [editModal, setEditModal] = useState(false)
   const [openModal, setOpenModal] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
@@ -56,7 +56,7 @@ export function WorkerCard({ avatar, name, role, func}) {
     </div>
         <BasicModal open={openModal} onClose={handleCloseModal} edit={editModal} func={func} />
         <DraggableDialog open={openDialog} onClose={handleCloseDialog} id={func.id}/>
-        <ModalScheduleProfessionals open={openSchedule} onClose={handleCloseSchedule} id={func.id} />
+        <ModalScheduleProfessionals open={openSchedule} scheduleProfessional={schedule} onClose={handleCloseSchedule} id={func.id} />
     </>
   )
 }
