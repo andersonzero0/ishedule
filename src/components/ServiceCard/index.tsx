@@ -19,7 +19,7 @@ export function ServiceCard({name, avatar, price, service}) {
         <button className={styles.editDiv} onClick={() => handleOpenModal(true)}>
             <LuPencil color="#fff" size={40} />
         </button>
-        <Image width={50} height={50} src={avatar} alt="service image" className={styles.serviceAvatar}/>
+        <Image width={50} height={50} src={avatar} alt="service image" quality={100} className={styles.serviceAvatar}/>
         <span>{name} | R${price}</span>
       </div>
       <ModalService open={openModal} onClose={handleCloseModal} edit={editModal} service={service} />

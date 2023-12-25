@@ -122,23 +122,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const {data} = response
                 
                 setUser(data)
+                setSchedule(data.schedule)
                 
             })
             .catch((error) => {
                 console.log(error);
                 
                 signOut();
-            })
-
-
-            api.get('/user/company/schedule', {
-                headers: {
-                  "Authorization": `Bearer ${token}`
-                }
-            })
-            .then(({data}) => {
-                setSchedule(data.schedule)
-                
             })
         }
     }

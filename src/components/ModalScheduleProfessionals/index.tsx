@@ -33,7 +33,6 @@ export function ModalScheduleProfessionals({
   scheduleProfessionals,
   scheduleProfessional
 }: PropsModalScheduleProfessionals) {
-  const [companyWeekdays, setCompanyWeekdays] = useState([]);
   const { schedule } = useContext(AuthContext)
   const [errorEntrada, setErrorEntrada] = useState<TimeValidationError | null>(null)
   const [errorSaida, setErrorSaida] = useState<TimeValidationError | null>(null)
@@ -47,14 +46,7 @@ export function ModalScheduleProfessionals({
     'sab': true,
   })
   const [validMain, setValidMain] = useState(true)
-  const [selectScheduleCompany, setSelectScheduleCompany] = useState({ name: '', checked: false, opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()) }) 
-  const [companyEnterTime, setCompanyEnterTime] = useState("");
   const { '@firebase.token': token } = parseCookies()
-  const [companyExitTime, setCompanyExitTime] = useState("");
-
-  const [selectedWeekdays, setSelectedWeekdays] = useState([]);
-  const [enterTime, setEnterTime] = useState("");
-  const [exitTime, setExitTime] = useState("");
 
   const weekDaysDefault = [
     {
@@ -181,14 +173,14 @@ export function ModalScheduleProfessionals({
     if(schedule) {
 
       select = schedule.find((param) => param.name === name)
-      
+
     }
 
     let errorMessageEntrada = useMemo(() => {
       switch (errorEntrada) {
         case 'maxTime':
         case 'minTime': {
-          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída`
+          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída.`
         }
         case 'invalidDate': {
           return "Horario inválido"
@@ -198,13 +190,13 @@ export function ModalScheduleProfessionals({
           return ''
         }
       }
-    }, [errorEntrada])
+    }, [errorEntrada, errorSaida, schedule, select])
 
     let errorMessageSaida = useMemo(() => {
       switch (errorSaida) {
         case 'maxTime':
         case 'minTime': {
-          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, `
+          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída.`
         }
         case 'invalidDate': {
           return "Horário inválido"
@@ -214,7 +206,7 @@ export function ModalScheduleProfessionals({
           return ''
         }
       }
-    }, [errorSaida])
+    }, [errorSaida, errorEntrada, schedule, select])
     
     const day = weekDays.find((param) => param.name === name);
 

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import styles from "./styles.module.scss";
 import Image from "next/image";
@@ -7,11 +7,11 @@ import { AiFillHeart } from "react-icons/ai";
 import { BsPlusLg } from "react-icons/bs";
 import { CiLock, CiUnlock } from "react-icons/ci";
 import { ServiceCard } from "../../components/ServiceCard";
-import pencil from '../../../public/pencilWhite.svg'
+import pencil from "../../../public/pencilWhite.svg";
 import dayjs, { Dayjs } from "dayjs";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker, TimeValidationError } from "@mui/x-date-pickers";
 import { setupAPIClient } from "@/services/api";
 import { canSSRAuth } from "@/utils/canSSRAuth";
 import { ModalService } from "@/components/ModalService";
@@ -19,21 +19,19 @@ import { AuthContext, ScheduleProps } from "@/contexts/AuthContext";
 import { api } from "@/services/apiClient";
 import { parseCookies } from "nookies";
 import { getDownloadURL } from "firebase/storage";
-import { firebase } from '../../services/firebase'
+import { firebase } from "../../services/firebase";
 import { FaRegCheckSquare } from "react-icons/fa";
 import { FaRegSquare } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-
-
 export default function Profile() {
-  const { user, schedule } = useContext(AuthContext)
-  const { getDataCompany } = useContext(AuthContext)
-  const { '@firebase.token': token } = parseCookies()
-  const [openModal, setOpenModal] = useState(false)
-  const handleCloseModal = () => setOpenModal(false)
+  const { user, schedule } = useContext(AuthContext);
+  const { getDataCompany } = useContext(AuthContext);
+  const { "@firebase.token": token } = parseCookies();
+  const [openModal, setOpenModal] = useState(false);
+  const handleCloseModal = () => setOpenModal(false);
 
-  const [bannerUrl, setBannerUrl] = useState('');
+  const [bannerUrl, setBannerUrl] = useState("");
   const [imageBanner, setImageBanner] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [imageAvatar, setImageAvatar] = useState(null);
@@ -41,60 +39,129 @@ export default function Profile() {
   const [likes, setLikes] = useState<number>(0);
   const [companyAddress, setCompanyAddress] = useState<string>();
 
+  const [errorSaida, setErrorSaida] = useState<TimeValidationError | null>(
+    null
+  );
+  const [errorEntrada, setErrorEntrada] = useState<TimeValidationError | null>(
+    null
+  );
+  const [validTimes, setValidTimes] = useState({
+    dom: true,
+    seg: true,
+    ter: true,
+    qua: true,
+    qui: true,
+    sex: true,
+    sab: true,
+  });
+  const [validMain, setValidMain] = useState(true);
+
   const [categories, setCategories] = useState([]);
   const [categorySelected, setCategorySelected] = useState("");
 
   const [services, setServices] = useState([]);
-  const [servicesDays, setServicesDays] = useState([{ name: "dom", selected: true }, { name: "seg", selected: false }, { name: "ter", selected: false }, { name: "qua", selected: false }, { name: "qui", selected: false }, { name: "sex", selected: false }, { name: "sab", selected: false }]);
-  const [disabled, setDisabled] = useState(true)
-  const [selectedDay, setselectedDay] = useState<string>('dom');
+  const [servicesDays, setServicesDays] = useState([
+    { name: "dom", selected: true },
+    { name: "seg", selected: false },
+    { name: "ter", selected: false },
+    { name: "qua", selected: false },
+    { name: "qui", selected: false },
+    { name: "sex", selected: false },
+    { name: "sab", selected: false },
+  ]);
+  const [disabled, setDisabled] = useState(true);
+  const [selectedDay, setselectedDay] = useState<string>("dom");
   const [weekDays, setWeekDays] = useState<ScheduleProps[]>([
-    { name: "dom", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "seg", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "ter", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "qua", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "qui", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "sex", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false },
-    { name: "sab", opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()), checked: false }
-  ])
-
+    {
+      name: "dom",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "seg",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "ter",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "qua",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "qui",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "sex",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+    {
+      name: "sab",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    },
+  ]);
 
   useEffect(() => {
-    setCompanyName(user.company_name)
-    setCompanyAddress(user.address)
-    setAvatarUrl(user.avatar_url)
-    setBannerUrl(user.banner_url)
-    
-    if(schedule) {
-      const current_schedule = schedule.map((day) => {    
-        return {...day, opening_time:dayjs(day.opening_time), closing_time: dayjs(day.closing_time)}
-      })
-      setWeekDays(current_schedule)
-      
-    }
+    setCompanyName(user.company_name);
+    setCompanyAddress(user.address);
+    setAvatarUrl(user.avatar_url);
+    setBannerUrl(user.banner_url);
 
-  }, [user, schedule])
+    if (schedule) {
+      const current_schedule = schedule.map((day) => {
+        return {
+          ...day,
+          opening_time: dayjs(day.opening_time),
+          closing_time: dayjs(day.closing_time),
+        };
+      });
+      setWeekDays(current_schedule);
+    }
+  }, [user, schedule]);
 
   const itens = [
-    user?.service.map((e, key) =>
-      <ServiceCard name={e.name} avatar={e.background_img_url} price={e.price} service={e} key={key} />
-    )
-  ]
+    user?.service.map((e, key) => (
+      <ServiceCard
+        name={e.name}
+        avatar={e.background_img_url}
+        price={e.price}
+        service={e}
+        key={key}
+      />
+    )),
+  ];
 
   function handleBannerFile(e) {
     if (!e.target.files) {
       return;
     }
 
-
     const image = e.target.files[0];
-
 
     if (!image) {
       return;
     }
 
-    if (image.type === "image/jpeg" || image.type === "image/png" || image.type === "image/jpg") {
+    if (
+      image.type === "image/jpeg" ||
+      image.type === "image/png" ||
+      image.type === "image/jpg"
+    ) {
       setImageBanner(image);
       setBannerUrl(URL.createObjectURL(e.target.files[0]));
     }
@@ -111,119 +178,211 @@ export default function Profile() {
       return;
     }
 
-    if (image.type === "image/jpeg" || image.type === "image/png" || image.type === "image/jpg") {
+    if (
+      image.type === "image/jpeg" ||
+      image.type === "image/png" ||
+      image.type === "image/jpg"
+    ) {
       setImageAvatar(image);
       setAvatarUrl(URL.createObjectURL(e.target.files[0]));
     }
   }
 
   async function uploadCompanyAvatar(image: File) {
-
     try {
       const randomId = Math.floor(Math.random() * 99999999 + 1);
 
-      const storageRef = firebase.storage().ref().child(`avatarCompany/${randomId}-${image.name}`)
-      const snapshot = await storageRef.put(image)
+      const storageRef = firebase
+        .storage()
+        .ref()
+        .child(`avatarCompany/${randomId}-${image.name}`);
+      const snapshot = await storageRef.put(image);
 
-      const url = await getDownloadURL(snapshot.ref)
-      return url
-
+      const url = await getDownloadURL(snapshot.ref);
+      return url;
     } catch (error) {
-      console.log(error)
-      throw new Error(error.message)
+      console.log(error);
+      throw new Error(error.message);
     }
   }
 
   async function uploadCompanyBanner(image: File) {
-
     try {
       const randomId = Math.floor(Math.random() * 99999999 + 1);
 
-      const storageRef = firebase.storage().ref().child(`bannerCompany/${randomId}-${image.name}`)
-      const snapshot = await storageRef.put(image)
+      const storageRef = firebase
+        .storage()
+        .ref()
+        .child(`bannerCompany/${randomId}-${image.name}`);
+      const snapshot = await storageRef.put(image);
 
-      const url = await getDownloadURL(snapshot.ref)
-      return url
-
+      const url = await getDownloadURL(snapshot.ref);
+      return url;
     } catch (error) {
-      console.log(error)
-      throw new Error(error.message)
+      console.log(error);
+      throw new Error(error.message);
     }
   }
 
   function handleChangeCategory(e) {
     setCategorySelected(e.target.value);
   }
- 
+
   function buttonEditProfile() {
-    setDisabled(false)
+    setDisabled(false);
   }
 
   const handleSaveCompanyData = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       let avatar_url = avatarUrl;
       let banner_url = bannerUrl;
       if (imageAvatar) {
-        avatar_url = await uploadCompanyAvatar(imageAvatar)
+        avatar_url = await uploadCompanyAvatar(imageAvatar);
       }
 
       if (imageBanner) {
-        banner_url = await uploadCompanyBanner(imageBanner)
+        banner_url = await uploadCompanyBanner(imageBanner);
       }
 
-      const data_company = await api.patch('/user/company', {
-        company_name: companyName,
-        address: companyAddress,
-        avatar_url: avatar_url,
-        banner_url: banner_url,
-        schedule : weekDays
-      }, {
-        headers: {
-          "Authorization": `Bearer ${token}`
+      const data_company = await api.patch(
+        "/user/company",
+        {
+          company_name: companyName,
+          address: companyAddress,
+          avatar_url: avatar_url,
+          banner_url: banner_url,
+          schedule: weekDays,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })            
-      
-      setWeekDays(data_company.data.schedule)
-      getDataCompany()
-      toast.success("Perfil atualizado com sucesso")
+      );
 
+      setWeekDays(data_company.data.schedule);
+      getDataCompany();
+      toast.success("Perfil atualizado com sucesso");
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setDisabled(true);
     }
-    finally {
-      setDisabled(true)
-    }
+  };
 
+  function findFalseKey(obj: any) {
+    for (const key in obj) {
+      if (obj[key] === false) {
+        return key; // Retorna a chave com valor 'false'
+      }
+    }
+    return null; // Retorna null se nenhum valor 'false' for encontrado
   }
 
-  const setDate = (name: string) => {
-    if(!weekDays) {
-      return 
+  useEffect(() => {
+    const validFalse = findFalseKey(validTimes);
+
+    if (validFalse) {
+      setValidMain(false);
+    } else {
+      setValidMain(true);
     }
+  }, [validTimes]);
+
+  const setDate = (name: string) => {
+
+    if (!weekDays) {
+      return;
+    }
+
+    let errorMessageEntrada = useMemo(() => {
+      switch (errorEntrada) {
+        case "maxTime":
+        case "minTime": {
+          return `O horário da entrada deve ser anterior ao horário da saída.`;
+        }
+        case "invalidDate": {
+          return "Horario inválido";
+        }
+
+        default: {
+          return "";
+        }
+      }
+    }, [errorEntrada, errorSaida, schedule]);
+
+    let errorMessageSaida = useMemo(() => {
+      switch (errorSaida) {
+        case "maxTime":
+        case "minTime": {
+          return `O horário da entrada deve ser anterior ao horário da saída.`;
+        }
+        case "invalidDate": {
+          return "Horário inválido";
+        }
+
+        default: {
+          return "";
+        }
+      }
+    }, [errorSaida, errorEntrada, schedule]);
+
+    const day = weekDays.find((param) => param.name === name);
+
+    if(!day.checked) {
+
+      errorMessageEntrada = ''
+      errorMessageSaida = ''
+      
+    }
+
+    useMemo(() => {
+
+      if(errorMessageSaida == '' && errorMessageEntrada == '') {
+
+
+        const newValidTimes = {...validTimes, [name]: true}
+
+        setValidTimes(newValidTimes)
+        
+      } else {
+
+        const newValidTimes = {...validTimes, [name]: false}
+        
+        setValidTimes(newValidTimes)
+        
+      }
+
+    }, [errorMessageSaida, errorMessageEntrada])
     
-    const day = weekDays.find((param) => param.name === name) 
     return (
       <>
         <div className={styles.checkboxCompany}>
-          <p className={ disabled ? styles.textNotChecked : styles.textChecked }>Funciona</p>
+          <p className={disabled ? styles.textNotChecked : styles.textChecked}>
+            Funciona
+          </p>
           <button
-          onClick={() => {
-            const checkedDay = weekDays.map((param) => {
-              if (param.name === name ) {            
-                return {
-                  ...param ,
-                  checked: !param.checked
+            onClick={() => {
+              const checkedDay = weekDays.map((param) => {
+                if (param.name === name) {
+                  return {
+                    ...param,
+                    checked: !param.checked,
+                  };
                 }
-              }
-              return param           
-            })
-            setWeekDays(checkedDay)
-          }}
-          disabled = {disabled}
-          className={styles. btnChecked}
+                return param;
+              });
+              setWeekDays(checkedDay);
+            }}
+            disabled={disabled}
+            className={styles.btnChecked}
           >
-            { day.checked ? <FaRegCheckSquare size= {25} /> : <FaRegSquare size= {25} />}
+            {day.checked ? (
+              <FaRegCheckSquare size={25} />
+            ) : (
+              <FaRegSquare size={25} />
+            )}
           </button>
         </div>
         <div className={styles.useHour}>
@@ -235,23 +394,29 @@ export default function Profile() {
               <h3>Abertura</h3>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
+                  disabled={!day.checked || disabled}
                   value={day.opening_time}
+                  maxTime={dayjs(day.closing_time).subtract(1, "minute")}
+                  onError={(newError) => setErrorEntrada(newError)}
+                  slotProps={{
+                    textField: {
+                      helperText: errorMessageEntrada,
+                    },
+                  }}
                   onChange={(e) => {
                     const newOpeningTime = weekDays.map((param) => {
                       if (param.name === name) {
                         return {
                           ...param,
-                          opening_time: e
-                        }
+                          opening_time: e,
+                        };
                       }
-                      return param
-                    })
-                    setWeekDays(newOpeningTime)
-                  }
-                }
+                      return param;
+                    });
+                    setWeekDays(newOpeningTime);
+                  }}
                   className={styles.bgClock}
                   ampm={false}
-                  disabled={disabled}
                 />
               </LocalizationProvider>
             </div>
@@ -264,31 +429,37 @@ export default function Profile() {
               <h3>Fechamento</h3>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
+                  disabled={!day.checked || disabled}
                   value={day.closing_time}
+                  minTime={dayjs(day.opening_time).add(1, "minute")}
+                  onError={(newError) => setErrorSaida(newError)}
+                  slotProps={{
+                    textField: {
+                      helperText: errorMessageSaida,
+                    },
+                  }}
                   onChange={(e) => {
                     const newClosingTime = weekDays.map((param) => {
                       if (param.name === name) {
                         return {
                           ...param,
-                          closing_time: e
-                        }
+                          closing_time: e,
+                        };
                       }
-                      return param
-                    })
-                    setWeekDays(newClosingTime)
+                      return param;
+                    });
+                    setWeekDays(newClosingTime);
                   }}
                   ampm={false}
                   className={styles.bgClock}
-                  disabled={disabled}
                 />
               </LocalizationProvider>
             </div>
           </div>
         </div>
       </>
-    )
-
-  }
+    );
+  };
 
   return (
     <>
@@ -296,28 +467,53 @@ export default function Profile() {
         <title>Perfil | Ischedule</title>
       </Head>
       <div className={!disabled ? styles.bodyActive : styles.body}>
-
         <div className={styles.containerCenter}>
           <div className={styles.btnEditProfile}>
-            <button className={disabled ? styles.btnEdit : styles.btnEditDisabled} onClick={buttonEditProfile}><Image src={pencil} height={25} width={25} alt="pencil" className={styles.imgEditProfile} /></button>
+            <button
+              className={disabled ? styles.btnEdit : styles.btnEditDisabled}
+              onClick={buttonEditProfile}
+            >
+              <Image
+                src={pencil}
+                height={25}
+                width={25}
+                alt="pencil"
+                className={styles.imgEditProfile}
+              />
+            </button>
           </div>
           <div className={styles.headerProfile}>
-            <div style={{position: 'relative'}} className={bannerUrl ? styles.editBanner : styles.labelBanner}>
-              {bannerUrl ?
-
-                disabled ? '' :
+            <div
+              style={{ position: "relative" }}
+              className={bannerUrl ? styles.editBanner : styles.labelBanner}
+            >
+              {bannerUrl ? (
+                disabled ? (
+                  ""
+                ) : (
                   <label htmlFor="inpBanner">
-                    <Image src={pencil} alt="Camera add icon" width={60} className={styles.image} />
+                    <Image
+                      src={pencil}
+                      alt="Camera add icon"
+                      width={60}
+                      className={styles.image}
+                    />
                   </label>
-                :
+                )
+              ) : (
                 <label htmlFor="inpBanner">
-                  <Image src={cameraAdd} alt="Camera add icon" width={60} className={styles.image} />
+                  <Image
+                    src={cameraAdd}
+                    alt="Camera add icon"
+                    width={60}
+                    className={styles.image}
+                  />
                 </label>
-              }
+              )}
 
               <input
                 type="file"
-                id='inpBanner'
+                id="inpBanner"
                 accept="image/png, image/jpeg"
                 onChange={handleBannerFile}
                 disabled={disabled}
@@ -333,19 +529,32 @@ export default function Profile() {
               )}
             </div>
             <div className={styles.avatar}>
-              <div className={avatarUrl ? styles.editAvatar : styles.labelAvatar}>
-                {avatarUrl ?
-
-                  disabled ? '' :
+              <div
+                className={avatarUrl ? styles.editAvatar : styles.labelAvatar}
+              >
+                {avatarUrl ? (
+                  disabled ? (
+                    ""
+                  ) : (
                     <label htmlFor="inpAvatar">
-                      <Image src={pencil} alt="Camera add icon" width={40} className={styles.image} />
+                      <Image
+                        src={pencil}
+                        alt="Camera add icon"
+                        width={40}
+                        className={styles.image}
+                      />
                     </label>
-
-                  :
+                  )
+                ) : (
                   <label htmlFor="inpAvatar">
-                    <Image src={cameraAdd} alt="Camera add icon" width={40} className={styles.image} />
+                    <Image
+                      src={cameraAdd}
+                      alt="Camera add icon"
+                      width={40}
+                      className={styles.image}
+                    />
                   </label>
-                }
+                )}
 
                 <input
                   type="file"
@@ -366,8 +575,25 @@ export default function Profile() {
                 )}
               </div>
               <div className={styles.info}>
-                <input maxLength={35} size={60} type="text" className={styles.inputName} placeholder="Nome da empresa" value={companyName} onChange={(e) => setCompanyName(e.target.value)} disabled={disabled} />
-                <input maxLength={50} type="text" className={styles.inputAdress} placeholder="Rua XXXX - Nº 0" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} disabled={disabled} />
+                <input
+                  maxLength={35}
+                  size={60}
+                  type="text"
+                  className={styles.inputName}
+                  placeholder="Nome da empresa"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  disabled={disabled}
+                />
+                <input
+                  maxLength={50}
+                  type="text"
+                  className={styles.inputAdress}
+                  placeholder="Rua XXXX - Nº 0"
+                  value={companyAddress}
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  disabled={disabled}
+                />
               </div>
             </div>
             <label className={styles.likes}>
@@ -402,61 +628,78 @@ export default function Profile() {
               <span>Adicionar novo serviço</span>
             </div>
 
-            {user?.service ?
+            {user?.service ? (
               itens
-              :
+            ) : (
               <div className={styles.noServices}>
                 <p>não há serviços</p>
               </div>
-            }
-  
+            )}
           </div>
           <div className={styles.menuTime}>
             <h2>Horário de Abertura e Fechamento</h2>
             <div className={styles.timesDiv}>
               <div className={styles.weekDaysCheck}>
                 {servicesDays.map((day) => {
-                  const dayName = day.name
-                  return <button key={day.name} className={day.selected ? styles.containerCheckbox : styles.containerCheckboxDisable}
-                    onClick={(e) => {
-                      const changeDay = servicesDays.map((day) => {
-                        e.preventDefault()
-                        if (day.name === dayName) {
-                          return { ...day, selected: true }
-                        }
-                        return { ...day, selected: false }
-                      })
-                      setServicesDays(changeDay)
+                  const dayName = day.name;
+                  return (
+                    <button
+                      key={day.name}
+                      className={
+                        day.selected
+                          ? styles.containerCheckbox
+                          : styles.containerCheckboxDisable
+                      }
+                      onClick={(e) => {
+                        const changeDay = servicesDays.map((day) => {
+                          e.preventDefault();
+                          if (day.name === dayName) {
+                            return { ...day, selected: true };
+                          }
+                          return { ...day, selected: false };
+                        });
+                        setServicesDays(changeDay);
 
-                      setselectedDay(day.name)
-                    }}>
-                    <label htmlFor="dom">{day.name} </label>
-                  </button>
-                })
-                }
+                        setselectedDay(day.name);
+                      }}
+                    >
+                      <label htmlFor="dom">{day.name} </label>
+                    </button>
+                  );
+                })}
               </div>
-                 { schedule !== undefined && setDate(selectedDay) }
+              {schedule !== undefined && setDate(selectedDay)}
             </div>
           </div>
-          {disabled ?
-            ''
-            :
+          {disabled ? (
+            ""
+          ) : (
             <div className={styles.btnProfileChanges}>
-              <button className={styles.btnCancel} onClick={() => setDisabled(true)}>Cancelar</button>
-              <button className={styles.btnConfirm} onClick={(e) => handleSaveCompanyData(e)  }>Salvar alterações</button>
+              <button
+                className={styles.btnCancel}
+                onClick={() => setDisabled(true)}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.btnConfirm}
+                onClick={(e) => handleSaveCompanyData(e)}
+                disabled={!validMain}
+              >
+                Salvar alterações
+              </button>
             </div>
-          }
+          )}
         </div>
       </div>
-
     </>
   );
 }
 
 export const getServerSideProps = canSSRAuth(async (ctx) => {
-  const apiClient = setupAPIClient(ctx)
+  const apiClient = setupAPIClient(ctx);
 
   return {
-    props: {}
-  }
-})
+    props: {},
+  };
+});
