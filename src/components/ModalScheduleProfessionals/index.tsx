@@ -34,9 +34,19 @@ export function ModalScheduleProfessionals({
   scheduleProfessional
 }: PropsModalScheduleProfessionals) {
   const [companyWeekdays, setCompanyWeekdays] = useState([]);
-  const [disabledSave, setDisabledSave] = useState(false)
   const { schedule } = useContext(AuthContext)
-  const [error, setError] = useState<TimeValidationError | null>(null)
+  const [errorEntrada, setErrorEntrada] = useState<TimeValidationError | null>(null)
+  const [errorSaida, setErrorSaida] = useState<TimeValidationError | null>(null)
+  const [validTimes, setValidTimes] = useState({
+    'dom': true,
+    'seg': true,
+    'ter': true,
+    'qua': true,
+    'qui': true,
+    'sex': true,
+    'sab': true,
+  })
+  const [validMain, setValidMain] = useState(true)
   const [selectScheduleCompany, setSelectScheduleCompany] = useState({ name: '', checked: false, opening_time: dayjs(Date.now()), closing_time: dayjs(Date.now()) }) 
   const [companyEnterTime, setCompanyEnterTime] = useState("");
   const { '@firebase.token': token } = parseCookies()
@@ -50,50 +60,50 @@ export function ModalScheduleProfessionals({
     {
       name: "dom",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "seg",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "ter",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "qua",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "qui",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "sex",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
     {
       name: "sab",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0)),
     },
   ]
 
   const [services, setServices] = useState([]);
   const [servicesDays, setServicesDays] = useState([
-    { name: "dom", selected: false },
+    { name: "dom", selected: true },
     { name: "seg", selected: false },
     { name: "ter", selected: false },
     { name: "qua", selected: false },
@@ -125,6 +135,29 @@ export function ModalScheduleProfessionals({
     
   }
 
+  function findFalseKey(obj: any) {
+    for (const key in obj) {
+      if (obj[key] === false) {
+        return key; // Retorna a chave com valor 'false'
+      }
+    }
+    return null; // Retorna null se nenhum valor 'false' for encontrado
+  }
+
+  useEffect(() => {
+
+    const validFalse = findFalseKey(validTimes)
+
+
+    if(validFalse) {
+      setValidMain(false)
+    } else {
+      setValidMain(true)
+    }
+    
+  }, [validTimes])
+
+
   useEffect(() => {
 
     if(scheduleProfessional) {
@@ -151,26 +184,66 @@ export function ModalScheduleProfessionals({
       
     }
 
-    const errorMessage = useMemo(() => {
-      switch (error) {
+    let errorMessageEntrada = useMemo(() => {
+      switch (errorEntrada) {
         case 'maxTime':
         case 'minTime': {
-          setDisabledSave(true)
-          return `Selecione o horario entre ${dayjs(select.opening_time).format('hh:mm')} e ${dayjs(select.closing_time).format('hh:mm')}`
+          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída`
         }
         case 'invalidDate': {
-          setDisabledSave(true)
-          return "Horario invalido"
+          return "Horario inválido"
         }
 
         default: {
-          setDisabledSave(false)
           return ''
         }
       }
-    }, [error])
+    }, [errorEntrada])
+
+    let errorMessageSaida = useMemo(() => {
+      switch (errorSaida) {
+        case 'maxTime':
+        case 'minTime': {
+          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída`
+        }
+        case 'invalidDate': {
+          return "Horário inválido"
+        }
+
+        default: {
+          return ''
+        }
+      }
+    }, [errorSaida])
     
     const day = weekDays.find((param) => param.name === name);
+
+    if(!day.checked) {
+
+      errorMessageEntrada = ''
+      errorMessageSaida = ''
+      
+    }
+
+    useMemo(() => {
+
+      if(errorMessageSaida == '' && errorMessageEntrada == '') {
+
+
+        const newValidTimes = {...validTimes, [name]: true}
+
+        setValidTimes(newValidTimes)
+        
+      } else {
+
+        const newValidTimes = {...validTimes, [name]: false}
+        
+        setValidTimes(newValidTimes)
+        
+      }
+
+    }, [errorMessageSaida, errorMessageEntrada])
+    
     return (
       <div className={styles.conteinerModal}>
         <div className={styles.checkboxCompany}>
@@ -205,12 +278,13 @@ export function ModalScheduleProfessionals({
             <h3>Entrada</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <TimePicker
-                minTime={dayjs(select.opening_time)}
-                maxTime={dayjs(select.closing_time)}
-                onError={(newError) => setError(newError)}
+                disabled={!day.checked}
+                minTime={dayjs(select.opening_time).subtract(1, 'minute')}
+                maxTime={dayjs(select.closing_time).add(1, 'minute') && dayjs(day.closing_time).subtract(1, 'minute')}
+                onError={(newError) => setErrorEntrada(newError)}
                 slotProps={{
                   textField: {
-                    helperText: errorMessage
+                    helperText: errorMessageEntrada
                   }
                 }}
                 value={day.opening_time}
@@ -235,12 +309,13 @@ export function ModalScheduleProfessionals({
             <h3>Saída</h3>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <TimePicker
-                minTime={dayjs(select.opening_time)}
-                maxTime={dayjs(select.closing_time)}
-                onError={(newError) => setError(newError)}
+                disabled={!day.checked}
+                minTime={dayjs(select.opening_time).subtract(1, 'minute') && dayjs(day.opening_time).add(1, 'minute')}
+                maxTime={dayjs(select.closing_time).add(1, 'minute')}
+                onError={(newError) => setErrorSaida(newError)}
                 slotProps={{
                   textField: {
-                    helperText: errorMessage
+                    helperText: errorMessageSaida
                   }
                 }}
                 value={day.closing_time}
@@ -267,7 +342,7 @@ export function ModalScheduleProfessionals({
                 setWeekDays(weekDaysDefault)
                 onClose()
               }}>Cancelar</button>
-              <button onClick={handleUpdateSchedule} disabled={disabledSave} className={styles.btnConfirm}>Salvar alterações</button>
+              <button onClick={handleUpdateSchedule} disabled={!validMain} className={styles.btnConfirm}>Salvar alterações</button>
         </div>
       </div>
     );
