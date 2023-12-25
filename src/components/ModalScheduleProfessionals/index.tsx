@@ -174,8 +174,8 @@ export function ModalScheduleProfessionals({
     let select: any = {
       name: "dom",
       checked: false,
-      opening_time: dayjs(Date.now()),
-      closing_time: dayjs(Date.now()),
+      opening_time: dayjs(new Date().setHours(0, 0, 0, 0)),
+      closing_time: dayjs(new Date().setHours(0, 0, 0, 0))
     }
 
     if(schedule) {
@@ -204,7 +204,7 @@ export function ModalScheduleProfessionals({
       switch (errorSaida) {
         case 'maxTime':
         case 'minTime': {
-          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, e que a entrada seja menor que a saída`
+          return `Selecione o horário entre ${dayjs(select.opening_time).format('HH:mm')} e ${dayjs(select.closing_time).format('HH:mm')}, `
         }
         case 'invalidDate': {
           return "Horário inválido"
