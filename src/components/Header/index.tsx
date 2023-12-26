@@ -10,10 +10,10 @@ function Header() {
   const [focus, setFocus] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
+  /* useEffect(() => {
     router.push("/dashboard");
     setFocus("dashboard");
-  }, []);
+  }, []); */
 
 
   return (

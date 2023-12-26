@@ -18,7 +18,8 @@ type AuthContextData = {
     signUpWithFacebook: (credentials: SignUpProps) => Promise<void>,
     signInWithGoogle: () => Promise<void>,
     signInWithFacebook: () => Promise<void>,
-    getDataCompany: () => void
+    getDataCompany: () => void,
+    loading: boolean
 }
 
 type Professionals = {
@@ -90,6 +91,7 @@ export function signOut() {
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const { '@firebase.token': token } = parseCookies();
+    const [loading, setLoading] = useState<boolean>(false)
     const [user, setUser] = useState<UserProps>({
         id: "",
         email: "",
@@ -113,24 +115,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         getDataCompany()
     }, [])
 
-    function getDataCompany () {
-        if (token) {
+    async function getDataCompany () {
 
-            api.get('/user/company', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }).then(response => {
-                const {data} = response
-                
+        try {
+
+            setLoading(true)
+
+            if (token) {
+                const { data } = await api.get('/user/company', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                    
                 setUser(data)
                 setSchedule(data.schedule)
-                
-            })
-            .catch((error) => {
-                console.log(error);
-                
-                signOut();
-            })
+            }    
+            
+        } catch (error) {
+            toast.error("Erro ao acessar dados!")
+        } finally {
+            setLoading(false)
         }
+        
     }
 
     async function signUpWithEmailAndPassword({ email, password, name }: SignUpProps) {
@@ -340,7 +345,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 
     return (
-        <AuthContext.Provider value={{ user, schedule , isAuthenticated, signUpWithFacebook,signUpWithGoogle, signUpWithEmailAndPassword, signOut, signInWithEmailAndPassword, signInWithGoogle, signInWithFacebook, getDataCompany }}>
+        <AuthContext.Provider value={{ user, loading, schedule , isAuthenticated, signUpWithFacebook,signUpWithGoogle, signUpWithEmailAndPassword, signOut, signInWithEmailAndPassword, signInWithGoogle, signInWithFacebook, getDataCompany }}>
             {children}
         </AuthContext.Provider>
     )

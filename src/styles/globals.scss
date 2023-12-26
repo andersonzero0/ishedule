@@ -80,6 +80,19 @@ body {
   display: none !important;
 }
 
+.css-q7l9ym-MuiFormControl-root {
+  border-radius: 8px !important;
+}
+
+.css-q7l9ym-MuiFormControl-root:focus-within {
+  outline: none !important;
+  border-radius: 8px !important;
+}
+
+/* .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.MuiSelect-select {
+  height: 12px !important;
+} */
+
 .css-rhmlg1-MuiTypography-root-MuiDayCalendar-weekDayLabel {
   font-weight: bold !important;
 }
