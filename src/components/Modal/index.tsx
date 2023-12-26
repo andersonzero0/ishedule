@@ -31,6 +31,7 @@ type propsModal = {
     name: string;
     role: string;
     avatar_url: string;
+    services: any[];
   };
   onClose: () => void;
   servicesCompany?: any[];
@@ -43,14 +44,17 @@ export function BasicModal({
   func,
   servicesCompany,
 }: propsModal) {
-  const { getDataCompany } = useContext(AuthContext);
+  const { getDataCompany, user } = useContext(AuthContext);
   const { "@firebase.token": token } = parseCookies();
   const [funcName, setFuncName] = useState<string>();
   const [funcRole, setFuncRole] = useState<string>();
   const [imageAvatar, setImageAvatar] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [disabled, setDisabled] = useState(false);
+  
+  const [names, setName] = useState([]);
 
+  const [personName, setPersonName] = useState<string[]>([]);
   useEffect(() => {
     if (func) {
       setAvatarUrl(func.avatar_url);
@@ -110,6 +114,7 @@ export function BasicModal({
           name: funcName,
           role: funcRole,
           avatar_url: avatar_url,
+          services: personName
         },
         {
           headers: {
@@ -155,6 +160,7 @@ export function BasicModal({
           name: funcName,
           role: funcRole,
           avatar_url: avatar_url,
+          services: personName
         },
         {
           headers: {
@@ -162,6 +168,8 @@ export function BasicModal({
           },
         }
       );
+
+      console.log(response)
 
       getDataCompany();
       onClose();
@@ -185,9 +193,6 @@ export function BasicModal({
     },
   };
 
-  const [names, setName] = useState([]);
-
-  const [personName, setPersonName] = useState<string[]>([]);
 
   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
     const {
@@ -204,6 +209,15 @@ export function BasicModal({
       setName(servicesCompany)
     }
   }, [servicesCompany])
+
+  useEffect(() => {
+    if(func && func.services && func.services.length > 0) {
+
+      const servicesChecked = func.services.map((service) => service.service_id)
+      
+      setPersonName(servicesChecked)
+    }
+  }, [func])
 
   return (
     <Modal
@@ -268,37 +282,44 @@ export function BasicModal({
             </div>
 
             <div>
+            <label style={{ marginBottom: "10px" }}>Serviços</label>
               <FormControl sx={{ m: 0, width: "100%" }}>
-                <InputLabel id="demo-multiple-checkbox-label" className={styles.labelServices}>Serviços</InputLabel>
+                {/* <InputLabel id="demo-multiple-checkbox-label" className={styles.labelServices}>Serviços</InputLabel> */}
                 <Select
                   labelId="demo-multiple-checkbox-label"
                   id="demo-multiple-checkbox"
                   multiple
                   value={personName}
                   onChange={handleChange}
-                  input={<OutlinedInput label="Serviços" />}
+                  /* input={<OutlinedInput label="Serviços" />} */
                   renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip key={value} label={value} />
-                      ))}
+                      {selected.map((value) => {
+
+                        const nameService = names.find((name) => name.id == value)
+                        
+                        return (
+                          <Chip key={value} label={nameService.name} />
+                        )
+
+                      })}
                     </Box>
                   )}
                   MenuProps={MenuProps}
                 >
                   {names.length > 0 && names.map((name) => (
-                    <MenuItem key={name.name} value={name.name}>
+                    <MenuItem key={name.id} value={name.id}>
                       <Checkbox style={{
                         backgroundColor: "#2F317C",
                         marginRight: "10px"
-                      }} checked={personName.indexOf(name.name) > -1} />
-                      <img style={{
+                      }} checked={personName.indexOf(name.id) > -1} />
+                      <Image style={{
                         height: "50px",
                         aspectRatio: "4/3",
                         objectFit: "cover",
                         borderRadius: "12px",
                         marginRight: "10px"
-                      }} src={name.background_img_url} alt=""/>
+                      }} src={name.background_img_url} alt="" height={50} width={66} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOcw/C/HgAE9wIcjjQfagAAAABJRU5ErkJggg=="/>
                       <ListItemText primary={name.name} />
                     </MenuItem>
                   ))}

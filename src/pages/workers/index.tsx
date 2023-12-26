@@ -35,7 +35,7 @@ export default function Workers() {
                     </div>
                     {loading ? <Loader/> : user?.professionals.length != 0 ?
                         user?.professionals.map((e, key) => {return(
-                            <WorkerCard name={e.name} schedule={e.schedule} role={e.role} avatar={e.avatar_url} func={e} key={e.id}/>
+                            <WorkerCard name={e.name} schedule={e.schedule} servicesCompany={user.service} role={e.role} avatar={e.avatar_url} func={e} key={e.id}/>
                         )}
                         )
                         :

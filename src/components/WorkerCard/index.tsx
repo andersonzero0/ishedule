@@ -6,8 +6,9 @@ import { LuCalendarClock, LuPencil, LuTrash2 } from "react-icons/lu";
 import { BasicModal } from "../Modal";
 import { DraggableDialog } from "../Dialog";
 import { ModalScheduleProfessionals } from "../ModalScheduleProfessionals";
+import { Chip } from "@mui/material";
 
-export function WorkerCard({ avatar, name, role, func, schedule}) {
+export function WorkerCard({ avatar, name, role, func, schedule, servicesCompany}) {
   const [editModal, setEditModal] = useState(false)
   const [openModal, setOpenModal] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
@@ -20,6 +21,7 @@ export function WorkerCard({ avatar, name, role, func, schedule}) {
     setEditModal(param)
     setOpenModal(true)
   }
+  
   return (
     <>
     
@@ -45,6 +47,16 @@ export function WorkerCard({ avatar, name, role, func, schedule}) {
         <div className={styles.workerInfo}>
           <h3>{name}</h3>
           <p>{role}</p>
+          {
+            func && func.services.length > 0 && func.services.map((service) => {
+              const serviceSelect = servicesCompany.find((serviceCompany) => serviceCompany.id == service.service_id)
+
+              return (
+                <Chip key={serviceSelect.id} label={serviceSelect.name}/>
+              )
+              
+            })
+          }
         </div>
       </div>
 
@@ -54,7 +66,7 @@ export function WorkerCard({ avatar, name, role, func, schedule}) {
         <button className={styles.btnActions} onClick={handleOpenDialog}><LuTrash2 color="#e83f5b" size={25} cursor="pointer" /></button>
       </div>
     </div>
-        <BasicModal open={openModal} onClose={handleCloseModal} edit={editModal} func={func} />
+        <BasicModal open={openModal} onClose={handleCloseModal} servicesCompany={servicesCompany} edit={editModal} func={func} />
         <DraggableDialog open={openDialog} onClose={handleCloseDialog} id={func.id}/>
         <ModalScheduleProfessionals open={openSchedule} scheduleProfessional={schedule} onClose={handleCloseSchedule} id={func.id} />
     </>

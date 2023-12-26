@@ -81,12 +81,14 @@ body {
 }
 
 .css-q7l9ym-MuiFormControl-root {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  border: 1px solid #2F317C !important;
 }
 
 .css-q7l9ym-MuiFormControl-root:focus-within {
   outline: none !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  border: 1px solid #2F317C !important;
 }
 
 /* .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.MuiSelect-select {

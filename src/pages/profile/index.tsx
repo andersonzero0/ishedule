@@ -39,6 +39,18 @@ export default function Profile() {
   const [likes, setLikes] = useState<number>(0);
   const [companyAddress, setCompanyAddress] = useState<string>();
 
+  const [errorMessageEntrada, setErrorMessageEntrada] = useState('')
+  const [errorMessageSaida, setErrorMessageSaida] = useState('')
+
+  const [day, setDay] = useState<ScheduleProps>(
+    {
+      name: "dom",
+      opening_time: dayjs(Date.now()),
+      closing_time: dayjs(Date.now()),
+      checked: false,
+    }
+  )
+
   const [errorSaida, setErrorSaida] = useState<TimeValidationError | null>(
     null
   );
@@ -131,6 +143,7 @@ export default function Profile() {
         };
       });
       setWeekDays(current_schedule);
+      setDay(current_schedule[0]);
     }
   }, [user, schedule]);
 
@@ -290,71 +303,79 @@ export default function Profile() {
     }
   }, [validTimes]);
 
+  useEffect(() => {
+
+    if(!day.checked) {
+
+      setErrorMessageEntrada('')
+      setErrorMessageSaida('')
+
+      return
+      
+    }
+
+    if(day.checked && (errorEntrada == 'maxTime' || errorEntrada == 'minTime')) {
+
+      setErrorMessageEntrada(`O horário da entrada deve ser anterior ao horário da saída.`)
+      
+    } else if(errorEntrada == 'invalidDate') {
+
+      setErrorMessageEntrada(`Horário inválido`)
+
+    } else {
+
+      setErrorMessageEntrada('')
+      
+    }
+
+    if(day.checked && (errorSaida == 'maxTime' || errorSaida == 'minTime')) {
+
+      setErrorMessageSaida(`O horário da entrada deve ser anterior ao horário da saída.`)
+      
+    } else if(errorSaida == 'invalidDate') {
+
+      setErrorMessageSaida(`Horário inválido`)
+
+    } else {
+
+      setErrorMessageSaida('')
+      
+    }
+
+  }, [errorEntrada, errorSaida, schedule, day, selectedDay])
+
+  useEffect(() => {
+
+    const daySelect = weekDays.find((param) => param.name === selectedDay);
+
+    setDay(daySelect)
+    
+  }, [selectedDay, weekDays])
+
+  useEffect(() => {
+
+    if(errorMessageSaida == '' && errorMessageEntrada == '') {
+
+
+      const newValidTimes = {...validTimes, [selectedDay]: true}
+
+      setValidTimes(newValidTimes)
+      
+    } else {
+
+      const newValidTimes = {...validTimes, [selectedDay]: false}
+      
+      setValidTimes(newValidTimes)
+      
+    }
+
+  }, [errorMessageSaida, errorMessageEntrada])
+
   const setDate = (name: string) => {
 
     if (!weekDays) {
       return;
     }
-
-    let errorMessageEntrada = useMemo(() => {
-      switch (errorEntrada) {
-        case "maxTime":
-        case "minTime": {
-          return `O horário da entrada deve ser anterior ao horário da saída.`;
-        }
-        case "invalidDate": {
-          return "Horario inválido";
-        }
-
-        default: {
-          return "";
-        }
-      }
-    }, [errorEntrada, errorSaida, schedule]);
-
-    let errorMessageSaida = useMemo(() => {
-      switch (errorSaida) {
-        case "maxTime":
-        case "minTime": {
-          return `O horário da entrada deve ser anterior ao horário da saída.`;
-        }
-        case "invalidDate": {
-          return "Horário inválido";
-        }
-
-        default: {
-          return "";
-        }
-      }
-    }, [errorSaida, errorEntrada, schedule]);
-
-    const day = weekDays.find((param) => param.name === name);
-
-    if(!day.checked) {
-
-      errorMessageEntrada = ''
-      errorMessageSaida = ''
-      
-    }
-
-    useMemo(() => {
-
-      if(errorMessageSaida == '' && errorMessageEntrada == '') {
-
-
-        const newValidTimes = {...validTimes, [name]: true}
-
-        setValidTimes(newValidTimes)
-        
-      } else {
-
-        const newValidTimes = {...validTimes, [name]: false}
-        
-        setValidTimes(newValidTimes)
-        
-      }
-
-    }, [errorMessageSaida, errorMessageEntrada])
     
     return (
       <>
