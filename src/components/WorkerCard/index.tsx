@@ -47,9 +47,10 @@ export function WorkerCard({ avatar, name, role, func, schedule, servicesCompany
         <div className={styles.workerInfo}>
           <h3>{name}</h3>
           <p>{role}</p>
+          <div>
           {
-            func && func.services.length > 0 && func.services.map((service) => {
-              const serviceSelect = servicesCompany.find((serviceCompany) => serviceCompany.id == service.service_id)
+            func && func.services.length > 0 && func.services.map((service: any) => {
+              const serviceSelect = servicesCompany.find((serviceCompany: any) => serviceCompany.id == service.service_id)
 
               return (
                 <Chip key={serviceSelect.id} label={serviceSelect.name}/>
@@ -57,6 +58,7 @@ export function WorkerCard({ avatar, name, role, func, schedule, servicesCompany
               
             })
           }
+          </div>
         </div>
       </div>
 

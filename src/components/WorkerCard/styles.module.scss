@@ -48,3 +48,14 @@
         }
     }
 }
+
+.workerInfo {
+    display: flex;
+    flex-flow: column;
+    gap: 4px;
+    div {
+        display: flex;
+        flex-flow:  row;
+        gap: 4px;
+    }
+}
