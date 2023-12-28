@@ -23,6 +23,19 @@ import { firebase } from "../../services/firebase";
 import { FaRegCheckSquare } from "react-icons/fa";
 import { FaRegSquare } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { Loader } from 'lucide-react'
+import {
+  Checkbox,
+  InputLabel,
+  FormControl,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
+  Box,
+  Chip,
+} from "@mui/material";
 
 export default function Profile() {
   const { user, schedule } = useContext(AuthContext);
@@ -69,7 +82,7 @@ export default function Profile() {
   const [validMain, setValidMain] = useState(true);
 
   const [categories, setCategories] = useState([]);
-  const [categorySelected, setCategorySelected] = useState("");
+  const [categorySelected, setCategorySelected] = useState<string[]>([]);
 
   const [services, setServices] = useState([]);
   const [servicesDays, setServicesDays] = useState([
@@ -127,6 +140,10 @@ export default function Profile() {
       checked: false,
     },
   ]);
+
+  const [names, setName] = useState([]);
+
+  const [personName, setPersonName] = useState<string[]>([]);
 
   useEffect(() => {
     setCompanyName(user.company_name);
@@ -237,10 +254,6 @@ export default function Profile() {
     }
   }
 
-  function handleChangeCategory(e) {
-    setCategorySelected(e.target.value);
-  }
-
   function buttonEditProfile() {
     setDisabled(false);
   }
@@ -266,6 +279,7 @@ export default function Profile() {
           avatar_url: avatar_url,
           banner_url: banner_url,
           schedule: weekDays,
+          categories: categorySelected
         },
         {
           headers: {
@@ -370,6 +384,51 @@ export default function Profile() {
     }
 
   }, [errorMessageSaida, errorMessageEntrada])
+
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      
+    }
+  };
+
+
+  const handleChange = (event: SelectChangeEvent<typeof categorySelected>) => {
+    const {
+      target: { value },
+    } = event;
+    setCategorySelected(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
+  async function getCategories() {
+    const { data } = await api.get("/categories", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setCategories(data);
+  }
+
+  async function postCategorySelected() {
+    if(user.categories.length == 0) {
+      return
+    }
+    const categoryChecked = await Promise.all(user.categories.map((category: any) => category.category_id))
+    
+    setCategorySelected(categoryChecked)
+  }
+
+  useEffect(() => {
+    getCategories();
+  }, [user])
+
+  useEffect(() => {
+    postCategorySelected()
+  }, [user])
 
   const setDate = (name: string) => {
 
@@ -622,22 +681,48 @@ export default function Profile() {
               <span>{likes}</span>
             </label>
           </div>
-          <select
-            value={categorySelected}
-            onChange={handleChangeCategory}
-            className={styles.select}
-          >
-            <option value="" selected>
-              Editar categoria
-            </option>
-            {categories.map((item, index) => {
-              return (
-                <option key={item.id} value={index}>
-                  {item.name}
-                </option>
-              );
-            })}
-          </select>
+
+          <FormControl sx={{ marginTop: 1, width: "auto", float: 'right', display: 'flex', justifyContent: 'center', alignItems: 'end', gap: 0.5 }}>
+                <label className={styles.labelCategories} style={{float: 'right'}}>Categorias</label>
+                <Select
+                  disabled={disabled}
+                  className={styles.selectCategories}
+                  /* labelId="demo-multiple-checkbox-label"
+                  id="demo-multiple-checkbox" */
+                  multiple
+                  displayEmpty
+                  value={categorySelected}
+                  onChange={handleChange}
+                  input={<OutlinedInput />}
+
+                  renderValue={(selected) => (
+                    categories.length == 0 ? <Loader/> :
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'end' }}>
+                      {selected.length == 0 ? <Chip label={"Nenhuma categoria selecionada"} /> : selected.map((value) => {
+
+                        const categoryView = categories.find((category) => category.id == value)
+
+                        return (
+                          <Chip key={value} label={categoryView.name} />
+                        )
+
+                      })}
+                    </Box>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {categories.length > 0 && categories.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      <Checkbox style={{
+                        backgroundColor: "#2F317C",
+                        marginRight: "10px"
+                      }} checked={categorySelected.indexOf(category.id) > -1} />
+                      <ListItemText primary={category.name} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
           <div className={styles.menuServices}>
             <div className={styles.addService}>
               <div className={styles.plusDiv}>

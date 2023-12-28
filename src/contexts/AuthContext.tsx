@@ -51,6 +51,7 @@ type UserProps = {
     professionals?: Professionals[],
     service?: ServiceProps[],
     company_name?: string,
+    categories?: string[],
     address?: string,
     avatar_url?: string,
     banner_url?: string,
@@ -101,6 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         banner_url: "",
         description: "",
         professionals: [],
+        categories: [],
         service: [],
         _count: {
             likes: 0

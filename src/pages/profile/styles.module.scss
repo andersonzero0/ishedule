@@ -464,6 +464,17 @@
   }
 }
 
+.selectCategories {
+  border: '2px solid #1f2041';
+  outline: 'none';
+  border-radius: '20px';
+}
+
+.labelCategories {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
 .divHours {
   display: flex;
   align-items: center;
