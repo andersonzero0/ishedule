@@ -16,10 +16,15 @@ export function ServiceCard({name, avatar, price, service}) {
   return (
     <>
       <div className={styles.addService}>
+        <div className={styles.boxImageService}>
+
         <button className={styles.editDiv} onClick={() => handleOpenModal(true)}>
             <LuPencil color="#fff" size={40} />
         </button>
-        <Image width={50} height={50} src={avatar} alt="service image" quality={100} className={styles.serviceAvatar}/>
+        <Image width={50} height={50} src={avatar} alt="service image" placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOcw/C/HgAE9wIcjjQfagAAAABJRU5ErkJggg==" className={styles.serviceAvatar}/>
+
+        </div>
+        
         <span>{name} | R${price}</span>
       </div>
       <ModalService open={openModal} onClose={handleCloseModal} edit={editModal} service={service} />

@@ -742,6 +742,7 @@ export default function Profile() {
               </div>
             )}
           </div>
+          
           <div className={styles.menuTime}>
             <h2>Horário de Abertura e Fechamento</h2>
             <div className={styles.timesDiv}>

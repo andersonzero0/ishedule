@@ -43,7 +43,7 @@ export function ModalService({ open, onClose, edit = false, service }: propsModa
             setServiceTime(service.estimated_time)
         }
     },[onClose])
-    
+
 
     async function uploadServiceAvatar(image: File) {
 
@@ -107,6 +107,7 @@ export function ModalService({ open, onClose, edit = false, service }: propsModa
             setServiceAvatar(null)
             setServiceName('')
             setServicePrice(null)
+            setServiceTime('')
             onClose()
 
         } catch (error) {

@@ -159,11 +159,11 @@
 
 .menuServices {
   display: flex;
-  margin-top: 4rem;
-  max-width: 100vw;
+  width: 100%;
+  gap: 10px;
   overflow-x: scroll;
   overflow-y: hidden;
-  padding: 1rem 0;
+  padding: 8px 0;
 }
 
 .addService {
@@ -171,9 +171,10 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 15rem;
+  min-width: 200px;
   height: 12rem;
   cursor: pointer;
+  text-align: center;
 
   button {
     all: inherit;
@@ -447,7 +448,7 @@
       cursor: pointer;
     }
 
-    :hover {
+    &:hover {
       color: #fff;
       border-bottom: 1px solid var(--other-red);
     }
@@ -468,6 +469,10 @@
   border: '2px solid #1f2041';
   outline: 'none';
   border-radius: '20px';
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 .labelCategories {
