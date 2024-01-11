@@ -11,6 +11,7 @@ import searchIcon from "../../../public/searchIcon.svg";
 import { canSSRAuth } from "@/utils/canSSRAuth";
 import { setupAPIClient } from "@/services/api";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { BadgePlus } from "lucide-react";
 
 export default function Schedule() {
   const [date, setDate] = useState<dayjs.Dayjs>();
@@ -52,7 +53,9 @@ export default function Schedule() {
               <div className={styles.scheduleButtons}>
                 <button
                   className={styles.btnSchedule}
-                  onClick={() => handleFormatDate(dayjs(date).subtract(1, 'month'))}
+                  onClick={() =>
+                    handleFormatDate(dayjs(date).subtract(1, "month"))
+                  }
                 >
                   <IoIosArrowBack />
                 </button>
@@ -65,7 +68,7 @@ export default function Schedule() {
                 </button>
                 <button
                   className={styles.btnSchedule}
-                  onClick={() => handleFormatDate(dayjs(date).add(1, 'month'))}
+                  onClick={() => handleFormatDate(dayjs(date).add(1, "month"))}
                 >
                   <IoIosArrowForward />
                 </button>
@@ -78,7 +81,7 @@ export default function Schedule() {
               value={date}
               onChange={(day: dayjs.Dayjs) => handleFormatDate(day)}
               defaultValue={dayjs(date)}
-              dayOfWeekFormatter={(_day, weekday) => `${weekday.format('ddd')}`}
+              dayOfWeekFormatter={(_day, weekday) => `${weekday.format("ddd")}`}
             />
           </LocalizationProvider>
           <div className={styles.statusList}>
@@ -134,13 +137,18 @@ export default function Schedule() {
                 {dayjs(date).format("DD/MM/YYYY")}
               </p>
             </div>
-            <button className={styles.btnSearch}>
-              <Image
-                src={searchIcon}
-                alt="icone search"
-                className={styles.btnSearch}
-              />
-            </button>
+            <div className={styles.boxActionsBtn}>
+              <button className={styles.btnSearch}>
+                <BadgePlus size={32}/>
+              </button>
+              <button className={styles.btnSearch}>
+                <Image
+                  src={searchIcon}
+                  alt="icone search"
+                  className={styles.btnSearch}
+                />
+              </button>
+            </div>
           </div>
           <div className={styles.rigthScheduleContent}>
             <p>Não há registros!</p>

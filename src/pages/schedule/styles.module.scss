@@ -203,6 +203,12 @@
         }
       }
 
+      .boxActionsBtn {
+        display: flex;
+        flex-flow: row;
+        gap: 8px;
+      }
+
       button {
         cursor: pointer;
         padding: 0;
